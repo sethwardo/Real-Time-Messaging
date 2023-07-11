@@ -1,8 +1,2 @@
-# Docker Compose Nodejs and MySQL example
-
-## Run the System
-We can easily run the whole with only a single command:
-```bash
-docker-compose up
-```
-
+# Real Time Messaging Project 
+Online web application using Socket.io to show proof of concept on a real time messaging system run through a docker instance. 
