@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Admin Page</title>
+    </head>
+    <body>
+        <form id="getUsername">
+            <label for="username">Enter Username:</label><br>
+            <input type="text" id="username" name="username"><br>
+        </form>
+        <button type="button" class="button" form="getUsername" onClick="handleClick()">
+            <span class="icon">Set Username</span>
+        </button>
+        <h1>Current # of Customers Connected</h1>
+        <p id="customerCount">0</p>
+        <h1>List of all Users Connected</h1>
+        <ul id="allUserList"></ul>
+
+        <div class="chat">
+            <h3>Customer Chat</h3>
+            <ul id="messages">
+
+            </ul>
+        </div>
+        <form id="form" action="">
+            <input type="text" id="chatSubmit">
+            <input type="submit" value="Send">
+        </form>
+
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io('/admin')
+
+            var form = document.getElementById('form')
+            var input = document.getElementById('chatSubmit')
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault()
+                if (input.value) {
+                    socket.emit('chat message', input.value)
+                    input.value = ''
+                }
+            })
+
+            handleClick = () => {
+                var form = document.getElementById("getUsername")
+                var username = form.elements["username"].value
+                socket.emit('adminUsername', username)
+            }
+
+            socket.on("customerCount", function(msg){
+                document.getElementById("customerCount").innerHTML = msg;
+            })
+
+            socket.on("userList", function(msg){
+                let userList = [...new Set(msg)];
+                document.getElementById("allUserList").innerHTML = "";
+                console.log(userList)
+                userList.forEach(function(user){
+                    var item = document.createElement('li');
+                    item.textContent = JSON.stringify(user);
+                    var button = document.createElement('button');
+                    button.innerText = 'Join'
+
+                    button.onclick = function() {
+                        console.log(user['id'])
+                        socket.emit("joinRoom", user['id'])
+                    }
+
+                    if (user['type'] == 'customer') {
+                        item.appendChild(button)
+                    }
+                    allUserList.appendChild(item);
+                })
+                window.scrollTo(0, document.body.scrollHeight);
+            })
+
+            socket.on("success", function(msg){
+                console.log(msg)
+            })
+
+            socket.on("error", function(msg) {
+                if (msg == "customer socket undefined") {
+                    alert("No Customer has been Selected")
+                }
+                console.log(msg)
+            })
+
+            socket.on('chat message', function(msg) {
+                var item = document.createElement('li');
+                item.textContent = msg;
+                item.style = "text-align: left;"
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+
+            socket.on("joinedRoom", function(msg) {
+                document.getElementById("messages").innerHTML = "";
+            })
+            
+        </script>
+    </body>
+</html>

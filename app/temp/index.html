@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = "utf-8">
+        <meta name = "viewport" content = "width=device-width">
+        <title>Support Chat</title>
+        <link href="style.css" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <h1>Support Chat</h1>
+        <div class="supportChat">
+            <ul id="supportMessage">
+
+            </ul>
+            Hey I'm @username@, how can I help you today :)
+        </div>
+        <br>
+        <div class="userChat">
+            <ul id="userMessage">
+
+            </ul>
+            My house is on fire >:-(
+        </div>
+        <br>
+        @messages@
+        <br><br>
+
+        <form id="form" action="">
+            <input type="text">
+            <input type="submit" value="Send">
+        </form>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io('/user')
+
+            console.log(socket)
+            var form = document.getElementById('form')
+            var input = document.querySelector('input')
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault()
+                if (input.value) {
+                    socket.emit('chat message', input.value)
+                    input.value = ''
+                }
+            })
+
+            socket.on('chat message', function(msg) {
+                var item = document.createElement('li');
+                item.textContent = msg;
+                userMessage.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+
+            socket.on('connectToRoom',function(msg){
+                var item = document.createElement('li');
+                item.textContent = msg;
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+
+            socket.on("success", function(msg){
+                console.log(msg)
+            })
+
+        </script>
+    </body>
+</html>
